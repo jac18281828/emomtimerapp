@@ -21,7 +21,20 @@
 		AA00000000000000003010 /* TimerDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000002010 /* TimerDisplayView.swift */; };
 		AA00000000000000003011 /* RoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000002011 /* RoundsView.swift */; };
 		AA00000000000000003012 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000002012 /* ControlsView.swift */; };
+		BB00000000000000001003 /* CueLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000000001002 /* CueLogicTests.swift */; };
+		BB00000000000000001015 /* CueLogic.swift in TestSources */ = {isa = PBXBuildFile; fileRef = AA00000000000000002003 /* CueLogic.swift */; };
+		BB00000000000000001016 /* ColorCue.swift in TestSources */ = {isa = PBXBuildFile; fileRef = AA00000000000000002002 /* ColorCue.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BB00000000000000001006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1B2C3D4E5F6789012345614 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1B2C3D4E5F6789012345610;
+			remoteInfo = EMOMTimer;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A1B2C3D4E5F6789012345600 /* EMOMTimer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EMOMTimer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,10 +53,19 @@
 		AA00000000000000002010 /* TimerDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerDisplayView.swift; sourceTree = "<group>"; };
 		AA00000000000000002011 /* RoundsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsView.swift; sourceTree = "<group>"; };
 		AA00000000000000002012 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		BB00000000000000001001 /* EMOMTimerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EMOMTimerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB00000000000000001002 /* CueLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CueLogicTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A1B2C3D4E5F6789012345606 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB00000000000000001005 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -57,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6789012345608 /* EMOMTimer */,
+				BB00000000000000001009 /* EMOMTimerTests */,
 				A1B2C3D4E5F6789012345609 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,10 +130,19 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		BB00000000000000001009 /* EMOMTimerTests */ = {
+			isa = PBXGroup;
+			children = (
+				BB00000000000000001002 /* CueLogicTests.swift */,
+			);
+			path = EMOMTimerTests;
+			sourceTree = "<group>";
+		};
 		A1B2C3D4E5F6789012345609 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6789012345600 /* EMOMTimer.app */,
+				BB00000000000000001001 /* EMOMTimerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,6 +167,23 @@
 			productReference = A1B2C3D4E5F6789012345600 /* EMOMTimer.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BB00000000000000001008 /* EMOMTimerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB00000000000000001011 /* Build configuration list for PBXNativeTarget "EMOMTimerTests" */;
+			buildPhases = (
+				BB00000000000000001004 /* Sources */,
+				BB00000000000000001005 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BB00000000000000001007 /* PBXTargetDependency */,
+			);
+			name = EMOMTimerTests;
+			productName = EMOMTimerTests;
+			productReference = BB00000000000000001001 /* EMOMTimerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -144,6 +193,12 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					BB00000000000000001008 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = A1B2C3D4E5F6789012345610;
+					};
+				};
 			};
 			buildConfigurationList = A1B2C3D4E5F6789012345615 /* Build configuration list for PBXProject "EMOMTimer" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -159,6 +214,7 @@
 			projectRoot = "";
 			targets = (
 				A1B2C3D4E5F6789012345610 /* EMOMTimer */,
+				BB00000000000000001008 /* EMOMTimerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -195,7 +251,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BB00000000000000001004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BB00000000000000001016 /* ColorCue.swift in TestSources */,
+				BB00000000000000001015 /* CueLogic.swift in TestSources */,
+				BB00000000000000001003 /* CueLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BB00000000000000001007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1B2C3D4E5F6789012345610 /* EMOMTimer */;
+			targetProxy = BB00000000000000001006 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1B2C3D4E5F6789012345616 /* Debug */ = {
@@ -368,6 +442,50 @@
 			};
 			name = Release;
 		};
+		BB00000000000000001012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.emomtimer.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB00000000000000001013 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.emomtimer.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -385,6 +503,15 @@
 			buildConfigurations = (
 				A1B2C3D4E5F6789012345618 /* Debug */,
 				A1B2C3D4E5F6789012345619 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB00000000000000001014 /* Build configuration list for PBXNativeTarget "EMOMTimerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB00000000000000001012 /* Debug */,
+				BB00000000000000001013 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
