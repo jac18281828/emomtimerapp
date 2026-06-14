@@ -31,7 +31,7 @@ EMOMTimer/
 
 ## Sister Repository
 
-The web app this iOS app was ported from lives at `~/src/emomtimer`. Consult it when working on anything that touches domain behaviour or visual design.
+The web app this iOS app was ported from lives at `https://github.com/jac18281828/emomtimer`. Consult it when working on anything that touches domain behaviour or visual design.
 
 **Tech stack:** Rust → WebAssembly via Yew 0.22 and Trunk. No JavaScript framework.
 
