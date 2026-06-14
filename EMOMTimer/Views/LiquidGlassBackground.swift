@@ -51,17 +51,17 @@ struct LiquidGlassBackground: View {
     }
 
     // CSS gradient-shift: 15 s cycle.
-    // sin moves startPoint.x between 0.1 and 0.5 continuously — no bool
-    // reversal and no easeInOut turnaround that could look like a jump.
+    // The diagonal direction stays fixed (.topLeading → .bottomTrailing).
+    // hueRotation shifts all three colours together so there is no axis
+    // flip — the left/right distribution of colours never inverts.
     @ViewBuilder
     private func gradientLayer(t: Double) -> some View {
-        let phase = t / 15.0 * .pi * 2
-        let sx    = CGFloat(0.3 + 0.2 * sin(phase))
         LinearGradient(
             colors: gradientColors,
-            startPoint: UnitPoint(x: sx,     y: 0),
-            endPoint:   UnitPoint(x: 1 - sx, y: 1)
+            startPoint: .topLeading,
+            endPoint:   .bottomTrailing
         )
+        .hueRotation(.degrees(30 * sin(t / 15.0 * .pi * 2)))
     }
 
     // CSS body::before — clouds-drift-1 30 s, blur 22 px

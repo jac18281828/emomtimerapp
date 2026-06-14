@@ -39,6 +39,7 @@ struct ContentView: View {
                         .padding(.vertical, verticalSizeClass == .compact ? 2 : 6)
 
                     ControlsView()
+                        .frame(maxWidth: .infinity)   // fills card width so VStack(.center) centres rows
                         .padding(.top, verticalSizeClass == .compact ? 4 : 8)
                 }
                 .padding(cardPadding)

@@ -25,23 +25,26 @@ enum CueLogic {
         return (r: totalTenths / 10, t: totalTenths % 10)
     }
 
-    // Pure color-cue computation, faithful port of update_blink_state.
+    // Pure color-cue computation, derived from update_blink_state (Appendix D).
     //
     // Parameters:
-    //   R     — configured interval in whole seconds (round_time.total_seconds())
-    //   r     — whole seconds remaining (current_time.total_seconds(), tenths ignored)
+    //   R     — configured interval in whole seconds
+    //   r     — whole seconds remaining (tenths ignored)
     //   t     — tenths digit of remaining time (0–9)
     //   round — current round, 1-based
     //
     // Rules (in order, first match wins):
-    //   1. R ≤ 7 → none  (too short to blink without being distracting)
-    //   2. Green if round > 1 AND r ∈ (R-4, R) AND t ≤ 4  (first 3 s of rounds ≥ 2)
-    //   3. Red   if r ∈ [1, 3]  AND t ≤ 4                 (last 3 s of every round)
+    //   1. R ≤ 7 → none  (too short; blink would be constant and distracting)
+    //   2. Green if round > 1 AND r ∈ (R-4, R)  — solid for first 3 s of rounds ≥ 2.
+    //      Deliberate deviation from source (which gated on t ≤ 4): the native port
+    //      makes green solid so it appears immediately at the round boundary rather
+    //      than 0.5 s later when the tenths digit first drops to 4.
+    //   3. Red   if r ∈ [1, 3] AND t ≤ 4        — blink for last 3 s of every round.
     //   4. none
     static func colorCue(R: Int, r: Int, t: Int, round: Int) -> ColorCue {
         guard R > 2 * blinkCount + 1 else { return .none }
 
-        if round > 1 && r > R - (blinkCount + 1) && r < R && t <= 4 {
+        if round > 1 && r > R - (blinkCount + 1) && r < R {
             return .green
         }
 
