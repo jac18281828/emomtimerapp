@@ -108,7 +108,7 @@ struct ControlsView: View {
     }
 
     private func rndButton(_ delta: Int) -> some View {
-        Button(delta > 0 ? "+Rnd" : "-Rnd") {
+        Button(delta > 0 ? "+Round" : "-Round") {
             engine.adjustRounds(delta)
         }
         .buttonStyle(GlassButtonStyle())

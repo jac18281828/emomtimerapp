@@ -23,7 +23,9 @@ struct TimerDisplayView: View {
 
     var body: some View {
         let cueColor = engine.colorCue.timerColor
-        let (m, s, t) = split(engine.displayRemaining)
+        let (r, t)   = CueLogic.decompose(remaining: engine.displayRemaining)
+        let m = r / 60
+        let s = r % 60
 
         HStack(alignment: .center, spacing: 0) {
             Text("\(m)")
@@ -79,10 +81,4 @@ struct TimerDisplayView: View {
         }
     }
 
-    /// Splits remaining seconds into (minutes, seconds, tenths) for display.
-    private func split(_ remaining: Double) -> (Int, Int, Int) {
-        let totalTenths = max(0, Int(floor(remaining * 10)))
-        let totalSecs   = totalTenths / 10
-        return (totalSecs / 60, totalSecs % 60, totalTenths % 10)
-    }
 }

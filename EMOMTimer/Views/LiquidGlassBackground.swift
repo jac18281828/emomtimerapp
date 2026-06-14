@@ -51,17 +51,27 @@ struct LiquidGlassBackground: View {
     }
 
     // CSS gradient-shift: 15 s cycle.
-    // The diagonal direction stays fixed (.topLeading → .bottomTrailing).
-    // hueRotation shifts all three colours together so there is no axis
-    // flip — the left/right distribution of colours never inverts.
+    // The angle swings ±20° around 135° (range 115°–155°) so it is always
+    // clearly diagonal and never approaches vertical or horizontal — the
+    // region that caused the earlier colour-inversion artifact.
+    //
+    // CSS angle convention (clockwise from "to top"):
+    //   direction vector in SwiftUI y-down space = (sin θ, −cos θ)
+    // startPoint / endPoint are placed 0.75 units from centre; values
+    // outside [0,1] are legal for UnitPoint and let the gradient reach
+    // beyond the view edges exactly like CSS background-size: 400%.
     @ViewBuilder
     private func gradientLayer(t: Double) -> some View {
+        let phase = t / 15.0 * .pi * 2
+        let θ     = (135.0 + 20.0 * sin(phase)) * .pi / 180.0
+        let dx    = CGFloat(sin(θ))
+        let dy    = CGFloat(-cos(θ))
+        let s: CGFloat = 0.75
         LinearGradient(
             colors: gradientColors,
-            startPoint: .topLeading,
-            endPoint:   .bottomTrailing
+            startPoint: UnitPoint(x: 0.5 - dx * s, y: 0.5 - dy * s),
+            endPoint:   UnitPoint(x: 0.5 + dx * s, y: 0.5 + dy * s)
         )
-        .hueRotation(.degrees(30 * sin(t / 15.0 * .pi * 2)))
     }
 
     // CSS body::before — clouds-drift-1 30 s, blur 22 px

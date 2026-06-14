@@ -196,12 +196,9 @@ final class TimerEngine {
     var isRunning: Bool { phase == .running }
 
     var displayString: String {
-        let r = displayRemaining
-        let totalTenths = max(0, Int(floor(r * 10)))
-        let totalSecs   = totalTenths / 10
-        let m = totalSecs / 60
-        let s = totalSecs % 60
-        let t = totalTenths % 10
+        let (r, t) = CueLogic.decompose(remaining: displayRemaining)
+        let m = r / 60
+        let s = r % 60
         return "\(m):\(String(format: "%02d", s)).\(t)"
     }
 
@@ -270,15 +267,17 @@ final class TimerEngine {
             lastBeepR = -1
         }
 
-        // Last-3-second countdown beeps (once per whole second, when R > 7).
+        // Last-3-second countdown beeps — once per whole second, gated on R > 7.
+        // Also gated on tVal <= 4 (same half-second window as the red cue) so the
+        // beep fires in sync with the colour change, not 0.5 s before it.
         let R    = Int(intervalDuration.rounded())
-        let (rVal, _) = CueLogic.decompose(remaining: r)
-        if R > 7 && rVal > 0 && rVal <= CueLogic.blinkCount && rVal != lastBeepR {
+        let (rVal, tVal) = CueLogic.decompose(remaining: r)
+        if R > 7 && rVal > 0 && rVal <= CueLogic.blinkCount && tVal <= 4 && rVal != lastBeepR {
             audio.playCountdownBeep()
             haptics.fireTick()
             lastBeepR = rVal
         } else if rVal > CueLogic.blinkCount {
-            lastBeepR = -1  // reset so we re-arm if the round is re-entered somehow
+            lastBeepR = -1
         }
     }
 
