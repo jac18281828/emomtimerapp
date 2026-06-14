@@ -47,7 +47,8 @@ struct TimerDisplayView: View {
         .shadow(color: .white.opacity(0.20), radius: 40)
         // Idle breathing (timer-breathe, 4 s, only when not running)
         .scaleEffect(breatheScale)
-        .animation(.easeInOut(duration: 0.15), value: engine.colorCue)
+        // No animation on colour cue — the blink rhythm is the visual effect.
+        // Easing a 500 ms on/off transition just creates interference.
         .onAppear {
             // Tenths pulse — always running
             withAnimation(.easeInOut(duration: 0.125).repeatForever(autoreverses: true)) {

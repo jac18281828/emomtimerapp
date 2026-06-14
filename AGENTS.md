@@ -21,7 +21,7 @@ EMOMTimer/
 │   └── ScreenWake.swift     — isIdleTimerDisabled toggling
 └── Views/
     ├── ContentView.swift          — full-screen layout; scenePhase → handleForeground()
-    ├── LiquidGlassBackground.swift — animated gradient + cloud blobs + GlassCard struct
+    ├── LiquidGlassBackground.swift — TimelineView + sin/cos animations; GlassCard struct
     ├── TimerDisplayView.swift     — large M:SS.t, colour cues, tenths pulse, idle breathe
     ├── RoundsView.swift           — current/total + interval + hairline divider
     └── ControlsView.swift         — 9 glass buttons; GlassButtonStyle; portrait/landscape
@@ -79,6 +79,8 @@ trunk build --release
 - `roundStartDate` advances by exactly `intervalDuration` per boundary (phase-lock) — do not set it to `Date()` on round rollover.
 - Audio session category is `.playback + .mixWithOthers`: beeps are audible on silent and play alongside the user's music.
 - `UIApplication.isIdleTimerDisabled` must be `true` while running and restored to `false` on pause/stop/finish.
+- **Background animations must not use `@State` booleans + `withAnimation(.repeatForever)`** — these can be interrupted by SwiftUI re-renders and produce visible jumps. All background motion in `LiquidGlassBackground` is driven by `TimelineView(.animation)` + `sin/cos(t)`, which is mathematically continuous and immune to view updates.
+- **No SwiftUI animation on the colour-cue transitions** — the red/green blink is intentionally abrupt (the CSS source has no transition). Adding `animation(...)` fights the 2 Hz on/off rhythm and looks glitchy. Keep `.foregroundColor` changes instantaneous.
 
 ## Dependencies and Imports
 - Prefer the standard library and system frameworks (SwiftUI, AVFoundation, UIKit, Observation).
@@ -96,9 +98,20 @@ trunk build --release
 
 Before marking work complete, run and report:
 
-1. `xcodebuild -project EMOMTimer.xcodeproj -scheme EMOMTimer -destination 'generic/platform=iOS' build` — project compiles cleanly
-2. `xcodebuild -project EMOMTimer.xcodeproj -scheme EMOMTimer -destination 'platform=iOS Simulator,name=iPhone 16' test` — all tests pass (if a test target exists)
-3. For UI-visible changes: launch on simulator or device and verify the golden path:
+1. Compile check (no signing required):
+   ```
+   xcodebuild -project EMOMTimer.xcodeproj -target EMOMTimer \
+     -sdk iphonesimulator26.5 CODE_SIGNING_ALLOWED=NO build
+   ```
+   For device builds with a provisioned team: `xcodebuild -scheme EMOMTimer -destination 'generic/platform=iOS' build`
+
+2. Tests (if a test target exists):
+   ```
+   xcodebuild -project EMOMTimer.xcodeproj -scheme EMOMTimer \
+     -destination 'platform=iOS Simulator,id=<UDID>' test
+   ```
+
+3. For UI-visible changes: launch on simulator (`xcrun simctl launch`) or device and verify the golden path:
    - Default 1:00 × 5 starts, counts down, advances through all 5 rounds
    - Green cue fires for first 3 s of rounds 2–5; red cue + countdown beep for last 3 s of every round
    - Boundary beep + haptic fires at each round-to-round transition

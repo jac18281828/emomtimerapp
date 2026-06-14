@@ -8,6 +8,12 @@
 //  Native reproduction of the web app's liquid-glass aesthetic (Appendix A).
 //  Palette, cloud geometry, and animation durations match the CSS source.
 //
+//  Animation strategy: all motion is derived from wall-clock time via sin/cos
+//  inside a TimelineView. There are no @State booleans and no withAnimation
+//  calls, which means there are no reversal points, no restart artifacts, and
+//  no interaction with SwiftUI's view-update cycle — the animation is
+//  mathematically guaranteed to be smooth and continuous at all times.
+//
 
 import SwiftUI
 
@@ -25,11 +31,6 @@ extension Color {
 // MARK: - Background
 
 struct LiquidGlassBackground: View {
-    @State private var gradientShift = false
-    @State private var cloud1Drift   = false
-    @State private var cloud2Drift   = false
-
-    // CSS source: #667eea → #764ba2 → #f093fb, 135° gradient, 15 s cycle
     private let gradientColors: [Color] = [
         Color(hex: 0x667eea),
         Color(hex: 0x764ba2),
@@ -37,95 +38,94 @@ struct LiquidGlassBackground: View {
     ]
 
     var body: some View {
+        GeometryReader { geo in
+            TimelineView(.animation) { context in
+                let t = context.date.timeIntervalSinceReferenceDate
+                ZStack {
+                    gradientLayer(t: t)
+                    cloudLayer1(t: t, size: geo.size)
+                    cloudLayer2(t: t, size: geo.size)
+                }
+            }
+        }
+    }
+
+    // CSS gradient-shift: 15 s cycle.
+    // sin moves startPoint.x between 0.1 and 0.5 continuously — no bool
+    // reversal and no easeInOut turnaround that could look like a jump.
+    @ViewBuilder
+    private func gradientLayer(t: Double) -> some View {
+        let phase = t / 15.0 * .pi * 2
+        let sx    = CGFloat(0.3 + 0.2 * sin(phase))
+        LinearGradient(
+            colors: gradientColors,
+            startPoint: UnitPoint(x: sx,     y: 0),
+            endPoint:   UnitPoint(x: 1 - sx, y: 1)
+        )
+    }
+
+    // CSS body::before — clouds-drift-1 30 s, blur 22 px
+    @ViewBuilder
+    private func cloudLayer1(t: Double, size: CGSize) -> some View {
+        let p  = t / 30.0 * .pi * 2
+        let dx = CGFloat(sin(p))        * size.width  * 0.02
+        let dy = CGFloat(cos(p * 0.71)) * size.height * 0.01
+
         ZStack {
-            // Animated gradient (simulates CSS background-size:400% animation)
-            LinearGradient(
-                colors: gradientColors,
-                startPoint: gradientShift ? .topLeading    : .bottomTrailing,
-                endPoint:   gradientShift ? .bottomTrailing : .topLeading
+            Ellipse()
+                .fill(Color.white.opacity(0.35))
+                .frame(width: size.width * 1.10, height: size.height * 0.20)
+                .offset(x: size.width * -0.25 + dx,        y: size.height * 0.30 + dy)
+            Ellipse()
+                .fill(Color.white.opacity(0.28))
+                .frame(width: size.width * 0.90, height: size.height * 0.17)
+                .offset(x: size.width *  0.20 + dx * 0.8,  y: size.height * 0.20 - dy)
+            Ellipse()
+                .fill(Color.white.opacity(0.38))
+                .frame(width: size.width * 1.20, height: size.height * 0.22)
+                .offset(x: size.width * -0.10 + dx * 1.2,  y: size.height * 0.70 + dy * 0.6)
+        }
+        .blur(radius: 22)
+        .mask(
+            RadialGradient(
+                colors: [.black, .clear],
+                center: .center,
+                startRadius: 0,
+                endRadius: max(size.width, size.height) * 0.65
             )
-
-            // Cloud layer 1 (body::before) — 30 s drift
-            cloudLayer1
-
-            // Cloud layer 2 (body::after) — 40 s drift, reversed
-            cloudLayer2
-        }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 7.5).repeatForever(autoreverses: true)) {
-                gradientShift = true
-            }
-            withAnimation(.easeInOut(duration: 15).repeatForever(autoreverses: true)) {
-                cloud1Drift = true
-            }
-            withAnimation(.easeInOut(duration: 20).repeatForever(autoreverses: true)) {
-                cloud2Drift = true
-            }
-        }
+        )
     }
 
-    // CSS: three radial gradients at 20%/80%/40% horizontal, blurred 22 px
-    private var cloudLayer1: some View {
-        GeometryReader { geo in
-            ZStack {
-                Ellipse()
-                    .fill(Color.white.opacity(0.35))
-                    .frame(width: geo.size.width * 1.1, height: 160)
-                    .offset(x: geo.size.width * -0.3,
-                            y: geo.size.height * 0.3 + (cloud1Drift ? 8 : -8))
-                Ellipse()
-                    .fill(Color.white.opacity(0.28))
-                    .frame(width: geo.size.width * 0.9, height: 140)
-                    .offset(x: geo.size.width * 0.25,
-                            y: geo.size.height * 0.2 + (cloud1Drift ? -6 : 6))
-                Ellipse()
-                    .fill(Color.white.opacity(0.38))
-                    .frame(width: geo.size.width * 1.2, height: 180)
-                    .offset(x: geo.size.width * -0.1,
-                            y: geo.size.height * 0.7 + (cloud1Drift ? 10 : -10))
-            }
-            .blur(radius: 22)
-            .mask(
-                RadialGradient(
-                    gradient: Gradient(colors: [.black, .clear]),
-                    center: .center,
-                    startRadius: 0,
-                    endRadius: max(geo.size.width, geo.size.height) * 0.7
-                )
-            )
-        }
-    }
+    // CSS body::after — clouds-drift-2 40 s, blur 26 px, reversed (negative phase)
+    @ViewBuilder
+    private func cloudLayer2(t: Double, size: CGSize) -> some View {
+        let p  = -t / 40.0 * .pi * 2    // negative = reverse direction per CSS
+        let dx = CGFloat(sin(p))         * size.width  * 0.015
+        let dy = CGFloat(cos(p * 0.50))  * size.height * 0.012
 
-    // CSS: three radial gradients at 60%/30%/90% horizontal, blurred 26 px, reversed
-    private var cloudLayer2: some View {
-        GeometryReader { geo in
-            ZStack {
-                Ellipse()
-                    .fill(Color.white.opacity(0.32))
-                    .frame(width: geo.size.width * 1.1, height: 150)
-                    .offset(x: geo.size.width * 0.15,
-                            y: geo.size.height * 0.4 + (cloud2Drift ? -12 : 12))
-                Ellipse()
-                    .fill(Color.white.opacity(0.36))
-                    .frame(width: geo.size.width,     height: 170)
-                    .offset(x: geo.size.width * -0.2,
-                            y: geo.size.height * 0.8 + (cloud2Drift ? 6 : -6))
-                Ellipse()
-                    .fill(Color.white.opacity(0.30))
-                    .frame(width: geo.size.width * 1.3, height: 190)
-                    .offset(x: geo.size.width * 0.4,
-                            y: geo.size.height * 0.7 + (cloud2Drift ? -8 : 8))
-            }
-            .blur(radius: 26)
-            .mask(
-                RadialGradient(
-                    gradient: Gradient(colors: [.black, .clear]),
-                    center: .center,
-                    startRadius: 0,
-                    endRadius: max(geo.size.width, geo.size.height) * 0.7
-                )
-            )
+        ZStack {
+            Ellipse()
+                .fill(Color.white.opacity(0.32))
+                .frame(width: size.width * 1.10, height: size.height * 0.19)
+                .offset(x: size.width *  0.15 + dx,        y: size.height * 0.40 + dy)
+            Ellipse()
+                .fill(Color.white.opacity(0.36))
+                .frame(width: size.width * 1.00, height: size.height * 0.21)
+                .offset(x: size.width * -0.20 - dx,        y: size.height * 0.80 - dy)
+            Ellipse()
+                .fill(Color.white.opacity(0.30))
+                .frame(width: size.width * 1.30, height: size.height * 0.23)
+                .offset(x: size.width *  0.35 + dx * 0.7,  y: size.height * 0.65 + dy * 0.8)
         }
+        .blur(radius: 26)
+        .mask(
+            RadialGradient(
+                colors: [.black, .clear],
+                center: .center,
+                startRadius: 0,
+                endRadius: max(size.width, size.height) * 0.65
+            )
+        )
     }
 }
 
