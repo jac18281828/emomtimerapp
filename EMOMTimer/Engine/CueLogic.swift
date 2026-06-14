@@ -35,16 +35,15 @@ enum CueLogic {
     //
     // Rules (in order, first match wins):
     //   1. R ≤ 7 → none  (too short; blink would be constant and distracting)
-    //   2. Green if round > 1 AND r ∈ (R-4, R)  — solid for first 3 s of rounds ≥ 2.
-    //      Deliberate deviation from source (which gated on t ≤ 4): the native port
-    //      makes green solid so it appears immediately at the round boundary rather
-    //      than 0.5 s later when the tenths digit first drops to 4.
-    //   3. Red   if r ∈ [1, 3] AND t ≤ 4        — blink for last 3 s of every round.
+    //   2. Green if round > 1 AND r ∈ (R-4, R) AND t ≤ 4
+    //      — blink for first 3 s of rounds ≥ 2, same 1 Hz rhythm as red.
+    //   3. Red   if r ∈ [1, 3]          AND t ≤ 4
+    //      — blink for last 3 s of every round.
     //   4. none
     static func colorCue(R: Int, r: Int, t: Int, round: Int) -> ColorCue {
         guard R > 2 * blinkCount + 1 else { return .none }
 
-        if round > 1 && r > R - (blinkCount + 1) && r < R {
+        if round > 1 && r > R - (blinkCount + 1) && r < R && t <= 4 {
             return .green
         }
 

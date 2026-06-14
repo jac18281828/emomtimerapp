@@ -122,14 +122,13 @@ final class CueLogicGreenTests: XCTestCase {
         XCTAssertEqual(CueLogic.colorCue(R: 60, r: 56, t: 0, round: 2), .none)
     }
 
-    // Native-port deviation: green has no t≤4 gate, so it fires immediately
-    // at the round boundary when t=9 (0.5 s before the source would show green).
-    func testGreenImmediatelyAtRoundStart_t9() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 9, round: 2), .green)
+    // Green blinks like red (t ≤ 4 gate). At t=9 (blink-off half), no green.
+    func testNoGreenAtT9_blinkOff() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 9, round: 2), .none)
     }
 
-    func testGreenAt58Seconds_t9() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 9, round: 3), .green)
+    func testNoGreenAt58Seconds_t9() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 9, round: 3), .none)
     }
 }
 
