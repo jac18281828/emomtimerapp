@@ -135,6 +135,21 @@ final class TimerEngine {
         UserDefaults.standard.set(rounds,           forKey: Self.roundsKey)
     }
 
+    /// Stop and clear the current session — return to round 1 at the full
+    /// interval — while keeping the configured interval and round count.
+    /// Distinct from reset(), which restores the factory defaults (1:00 × 5).
+    func stop() {
+        stopFrameTimer()
+        phase = .idle
+        currentRound = 1
+        pausedRemaining  = intervalDuration
+        displayRemaining = intervalDuration
+        resetEffectTracking()
+        blinkSuppressed = false
+        screenWake.disable()
+        audio.deactivate()
+    }
+
     /// ±1 or ±15 second adjustment to the interval, mirroring adjust_time_by_seconds.
     ///
     /// Both the config interval and the in-progress remaining shift by delta,
