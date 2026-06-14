@@ -53,6 +53,11 @@ final class TimerEngine {
     private var lastBeepR: Int = -1            // last r value for which a countdown beep fired
     private var firedBoundaryForRound: Int = 0 // round number for which boundary beep+haptic fired
     private var firedFinish = false
+    // Mirrors clear_blink_state() from the Rust source: set to true by any
+    // interval/round adjustment, cleared on the next processFrame tick.
+    // Prevents the colour cue from persisting across a button press even if
+    // the newly-computed values happen to still land in a blink zone.
+    private var blinkSuppressed = false
 
     // MARK: - Frame timer
 
@@ -123,6 +128,7 @@ final class TimerEngine {
         pausedRemaining  = 60.0
         displayRemaining = 60.0
         resetEffectTracking()
+        blinkSuppressed = false
         screenWake.disable()
         audio.deactivate()
         UserDefaults.standard.set(intervalDuration, forKey: Self.intervalKey)
@@ -171,6 +177,7 @@ final class TimerEngine {
         }
 
         UserDefaults.standard.set(intervalDuration, forKey: Self.intervalKey)
+        blinkSuppressed = true  // clear_blink_state: visual reset after any adjustment
     }
 
     /// ±1 round; decrement clamps at 1 and clamps currentRound down if needed.
@@ -178,6 +185,7 @@ final class TimerEngine {
         rounds = max(1, rounds + delta)
         if currentRound > rounds { currentRound = rounds }
         UserDefaults.standard.set(rounds, forKey: Self.roundsKey)
+        blinkSuppressed = true  // clear_blink_state
     }
 
     /// Called when the app returns to foreground — restarts the frame timer
@@ -208,6 +216,7 @@ final class TimerEngine {
     }
 
     var colorCue: ColorCue {
+        guard !blinkSuppressed else { return .none }
         let (r, t) = CueLogic.decompose(remaining: displayRemaining)
         let R = Int(intervalDuration.rounded())
         return CueLogic.colorCue(R: R, r: r, t: t, round: currentRound)
@@ -234,6 +243,7 @@ final class TimerEngine {
 
     private func processFrame() {
         guard phase == .running else { return }
+        blinkSuppressed = false   // clear_blink_state: one tick after an adjustment
 
         let now = Date()
         var r   = intervalDuration - now.timeIntervalSince(roundStartDate)
