@@ -35,15 +35,19 @@ enum CueLogic {
     //
     // Rules (in order, first match wins):
     //   1. R ≤ 7 → none  (too short; blink would be constant and distracting)
-    //   2. Green if round > 1 AND r ∈ (R-4, R) AND t ≤ 4
-    //      — blink for first 3 s of rounds ≥ 2, same 1 Hz rhythm as red.
+    //   2. Green if round > 1 AND r ∈ (R-4, R) AND t ≥ 5
+    //      — fires in the FIRST half of each second (t=9→5).
+    //      When a round advances, remaining drops to R−ε so t=9, which is ≥5,
+    //      meaning green appears immediately. Pattern: green→black (green dominant).
     //   3. Red   if r ∈ [1, 3]          AND t ≤ 4
-    //      — blink for last 3 s of every round.
+    //      — fires in the SECOND half of each second (t=4→0).
+    //      Pattern: black→red then back to black (red is what you first notice,
+    //      the brief black at t=9→5 reads as the "blink"). Opposite phase from green.
     //   4. none
     static func colorCue(R: Int, r: Int, t: Int, round: Int) -> ColorCue {
         guard R > 2 * blinkCount + 1 else { return .none }
 
-        if round > 1 && r > R - (blinkCount + 1) && r < R && t <= 4 {
+        if round > 1 && r > R - (blinkCount + 1) && r < R && t >= 5 {
             return .green
         }
 

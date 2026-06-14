@@ -72,6 +72,10 @@ struct LiquidGlassBackground: View {
             startPoint: UnitPoint(x: 0.5 - dx * s, y: 0.5 - dy * s),
             endPoint:   UnitPoint(x: 0.5 + dx * s, y: 0.5 + dy * s)
         )
+        // Mild hue shift (±15°, 11 s period) layered on top of the angle
+        // animation so the colours gently drift without dominating or flipping.
+        // Different period from the angle (15 s) creates organic combined motion.
+        .hueRotation(.degrees(15 * sin(t / 11.0 * .pi * 2)))
     }
 
     // CSS body::before — clouds-drift-1 30 s, blur 22 px

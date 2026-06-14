@@ -97,38 +97,45 @@ final class CueLogicGreenTests: XCTestCase {
         XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 0, round: 1), .none)
     }
 
-    // test_green_blink_at_59_seconds_round_2
-    func testGreenAt59SecondsRound2() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 0, round: 2), .green)
+    // Green uses t≥5 (first half of each second, opposite phase from red).
+    // At round advance remaining≈R−ε so t=9 ≥ 5 → fires immediately.
+
+    // test_green_blink_at_59_seconds_round_2 (t=9, start of second → green ON)
+    func testGreenAt59SecondsRound2_t9() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 9, round: 2), .green)
+    }
+
+    func testGreenAt59SecondsRound2_t5() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 5, round: 2), .green)
     }
 
     // test_green_blink_at_58_seconds_round_5
     func testGreenAt58SecondsRound5() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 3, round: 5), .green)
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 7, round: 5), .green)
     }
 
     // test_green_blink_at_57_seconds
     func testGreenAt57Seconds() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 57, t: 4, round: 2), .green)
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 57, t: 5, round: 2), .green)
     }
 
     // test_no_green_blink_at_60_seconds  (r < R: 60 < 60 is false)
     func testNoGreenWhenRemainingEqualsInterval() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 60, t: 0, round: 2), .none)
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 60, t: 9, round: 2), .none)
     }
 
     // test_no_green_blink_at_56_seconds  (r > R−4: 56 > 56 is false)
     func testNoGreenAt56Seconds() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 56, t: 0, round: 2), .none)
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 56, t: 9, round: 2), .none)
     }
 
-    // Green blinks like red (t ≤ 4 gate). At t=9 (blink-off half), no green.
-    func testNoGreenAtT9_blinkOff() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 9, round: 2), .none)
+    // Green blink-off: t < 5 (second half of each second) → none
+    func testNoGreenAtT4_blinkOff() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 4, round: 2), .none)
     }
 
-    func testNoGreenAt58Seconds_t9() {
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 9, round: 3), .none)
+    func testNoGreenAt58Seconds_t0() {
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 58, t: 0, round: 3), .none)
     }
 }
 
@@ -159,10 +166,10 @@ final class CueLogicNoneTests: XCTestCase {
     func testAcceptanceCriteria() {
         // round=1, r=59 → none
         XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 0, round: 1), .none)
-        // round=2, r=59 → green (immediate, t=0)
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 0, round: 2), .green)
-        // round=2, r=57, t=4 → green
-        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 57, t: 4, round: 2), .green)
+        // round=2, r=59 → green (immediate at t=9, first half of second)
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 59, t: 9, round: 2), .green)
+        // round=2, r=57, t=5 → green
+        XCTAssertEqual(CueLogic.colorCue(R: 60, r: 57, t: 5, round: 2), .green)
         // round=2, r=56 → none
         XCTAssertEqual(CueLogic.colorCue(R: 60, r: 56, t: 0, round: 2), .none)
         // round=2, r=60 → none
