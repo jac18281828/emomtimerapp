@@ -68,6 +68,12 @@ final class TimerEngine {
     private static let intervalKey = "emom.intervalDuration"
     private static let roundsKey   = "emom.rounds"
 
+    /// Floor for the configured interval. The Rust source clamped at 0, but
+    /// press-and-hold on the −15/−1 keys makes 0 trivially reachable, and a
+    /// 0-second interval makes a started session cascade through every round
+    /// in a single frame. 1 s is the smallest value that keeps the timer sane.
+    private static let minInterval = 1.0
+
     // MARK: - Init
 
     init() {
@@ -159,7 +165,7 @@ final class TimerEngine {
     /// roundStartDate. To shift remaining by delta, move roundStartDate back
     /// by delta (adding time to remaining) or forward (subtracting).
     func adjustInterval(seconds delta: Int) {
-        let newInterval  = max(0, intervalDuration + Double(delta))
+        let newInterval  = max(Self.minInterval, intervalDuration + Double(delta))
         let currentRemaining: Double
 
         switch phase {
@@ -213,8 +219,6 @@ final class TimerEngine {
     }
 
     // MARK: - Computed display helpers
-
-    var startLabel: String { phase == .paused ? "Start ↻" : "Start ▶" }
 
     var isRunning: Bool { phase == .running }
 
